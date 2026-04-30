@@ -65,7 +65,12 @@ if LED_SUBSYSTEM
                     Define a custom LED blinking pattern.
         endmenu #Expert settings
         
-    endif #ADVANCED_LED_SETTINGS
-endif #LED_SUBSYSTEM
+    endif
+endif
+
+config APP_HEARTBEAT_PERIOD_MS
+  int "LED heartbeat period (ms)"
+  default 500
+  range 100 2000
 
 source "Kconfig.zephyr"
