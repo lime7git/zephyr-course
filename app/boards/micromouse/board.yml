@@ -1,0 +1,6 @@
+board:
+  name: micromouse
+  full_name: Micromouse
+  vendor: lime7git
+  socs:
+    - name: stm32f405xx
