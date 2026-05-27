@@ -1,0 +1,6 @@
+board:
+  name: custom_board
+  full_name: Micromouse board from scratch
+  vendor: lime7git
+  socs:
+    - name: stm32f405xx

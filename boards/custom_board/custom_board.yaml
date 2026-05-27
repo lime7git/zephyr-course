@@ -1,0 +1,13 @@
+identifier: custom_board
+name: lime7git custom_board
+type: mcu
+arch: arm
+toolchain:
+  - zephyr
+  - gnuarmemb
+ram: 128
+flash: 1024
+supported:
+  - uart
+  - gpio
+vendor: lime7git
