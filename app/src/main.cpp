@@ -42,23 +42,23 @@ int main(void)
         //if (gpio_pin_toggle_dt(&led2) < 0) return 0;
         //if (gpio_pin_toggle_dt(&led3) < 0) return 0;
 
-        if(led_state) sensor_channel_get(driver, SENSOR_CHAN_AMBIENT_TEMP, NULL);
-        else sensor_sample_fetch(driver);
+        // if(led_state) sensor_channel_get(driver, SENSOR_CHAN_AMBIENT_TEMP, NULL);
+        // else sensor_sample_fetch(driver);
 
-        led_state = !led_state;
-        cnt++;
+        // led_state = !led_state;
+        // cnt++;
 
-        if(cnt == 5)
-        {
-            our_driver_set_param(driver, 2);
-        }
-        if(cnt >= 10)
-        {
-            our_driver_set_param(driver, 0);
-            cnt = 0;
-        }
+        // if(cnt == 5)
+        // {
+        //     our_driver_set_param(driver, 2);
+        // }
+        // if(cnt >= 10)
+        // {
+        //     our_driver_set_param(driver, 0);
+        //     cnt = 0;
+        // }
 
-        LOG_INF("LED state: %s", led_state ? "ON" : "OFF");
+        // LOG_INF("LED state: %s", led_state ? "ON" : "OFF");
         k_msleep(CONFIG_APP_HEARTBEAT_PERIOD_MS);
     }
     return 0;
