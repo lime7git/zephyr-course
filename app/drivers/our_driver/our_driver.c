@@ -1,13 +1,20 @@
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/drivers/gpio.h>
+#include "our_driver.h"
 
 #define DT_DRV_COMPAT our_driver
 
 /* The devicetree node identifier for the "led0" alias. */
 #define LED_NODE DT_ALIAS(led3)
+#define LED_NODE2 DT_ALIAS(led2)
+
+typedef struct our_driver_data {
+    uint32_t param1;
+} our_driver_data_t;
 
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED_NODE, gpios);
+static const struct gpio_dt_spec led2 = GPIO_DT_SPEC_GET(LED_NODE2, gpios);
 
 LOG_MODULE_REGISTER(our_driver, LOG_LEVEL_INF);
 
@@ -20,27 +27,37 @@ static DEVICE_API(sensor, api_our_driver) = {
     .channel_get = our_driver_channel_get,
 };
 
-#define DEV_INST(inst) DEVICE_DT_INST_DEFINE(inst, our_driver_init, NULL, NULL, NULL, POST_KERNEL, 80, &api_our_driver);
+#define DEV_INST(inst) \
+    static our_driver_data_t our_driver_data_##inst; \
+    DEVICE_DT_INST_DEFINE(inst, our_driver_init, NULL, &our_driver_data_##inst, NULL, POST_KERNEL, 80, &api_our_driver);
 DT_INST_FOREACH_STATUS_OKAY(DEV_INST);
 
 static int our_driver_sample_fetch(const struct device *dev, enum sensor_channel channel)
 {
+    our_driver_data_t *drv_data = (our_driver_data_t *)dev->data;
+
     LOG_INF("Hello from our driver sample fetch %d", channel);
-    gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE);
+    if(drv_data->param1 == 0) gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE);
+    else gpio_pin_configure_dt(&led2, GPIO_OUTPUT_ACTIVE);
     LOG_INF("LED state: ON");
     return 0;
 }
 
 static int our_driver_channel_get(const struct device *dev, enum sensor_channel channel, struct sensor_value* val)
 {
+    our_driver_data_t *drv_data = (our_driver_data_t *)dev->data;
+
     LOG_INF("Hello from our driver channel get %d", channel);
-    gpio_pin_configure_dt(&led, GPIO_OUTPUT_INACTIVE);
+    if(drv_data->param1 == 0) gpio_pin_configure_dt(&led, GPIO_OUTPUT_INACTIVE);
+    else gpio_pin_configure_dt(&led2, GPIO_OUTPUT_INACTIVE);
     LOG_INF("LED state: OFF");
     return 0;
 }
 
 static int our_driver_init(const struct device *dev)
 {
+    our_driver_data_t *drv_data = (our_driver_data_t *)dev->data;
+
     LOG_INF("Hello from our driver init");
     if (!gpio_is_ready_dt(&led))
     {
@@ -53,5 +70,31 @@ static int our_driver_init(const struct device *dev)
         LOG_ERR("Failed to configure LED");
         return -ENODEV;
     }
+
+    if (NULL != drv_data)
+    {
+        drv_data->param1 = 0;
+        LOG_INF("param1 initialized to 0");
+    }
+    else
+    {
+        LOG_ERR("Device data is NULL");
+    }
+
     return 0;
+}
+
+void our_driver_set_param(const struct device *dev, uint32_t param)
+{
+    our_driver_data_t *drv_data = (our_driver_data_t *)dev->data;
+
+    if (NULL != drv_data)
+    {
+        drv_data->param1 = param;
+        LOG_INF("Setting param1 to %u", param);
+    }
+    else
+    {
+        LOG_ERR("Device data is NULL");
+    }
 }
